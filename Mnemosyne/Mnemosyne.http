@@ -1,0 +1,35 @@
+@baseUrl = http://localhost:5266/api
+
+
+POST {{baseUrl}}/store
+Content-Type: application/json
+
+[
+    {
+        "Id": 1,
+        "QuoteName": "Test Quote",
+        "Price": 10.99,
+        "TimeStamp": "2023-01-01T00:00:00Z"
+    },
+    {
+        "Id": 2,
+        "QuoteName": "Another Test Quote",
+        "Price": 20.49,
+        "TimeStamp": "2023-02-01T00:00:00Z"
+    }
+]
+
+
+
+POST {{baseUrl}}/getdiff
+Content-Type: application/json
+
+{
+    "QuoteA": "First Quote",
+    "QuoteB": "Second Quote",
+    "TargetTime": "2023-03-15T12:34:56Z"
+}
+
+
+
+GET {{baseUrl}}/echo?value=test_value

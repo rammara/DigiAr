@@ -1,0 +1,26 @@
+version: '3.4'
+
+services:
+  mnemosyne:
+    image: ${DOCKER_REGISTRY-}mnemosyne
+    build:
+      context: .
+      dockerfile: Mnemosyne/Dockerfile
+    depends_on:
+      - db
+      
+  db:
+    image: postgres:latest
+    environment:
+        POSTGRES_USER: postgres
+        POSTGRES_PASSWORD: postgres
+        POSTGRES_DB: mnemosynedb
+        PGPORT: 5434
+    ports: 
+    - "5434:5434"
+    volumes:
+    - pgdata:/var/lib/postgresql/data
+    - ./init_db.pgsql:/docker-entrypoint-initdb.d/init_db.pgsql
+
+volumes:
+  pgdata:
