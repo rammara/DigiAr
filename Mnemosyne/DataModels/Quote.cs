@@ -10,12 +10,12 @@ namespace Mnemosyne.DataModels
 
         [Required]
         [MaxLength(50)]
-        public string QuoteName { get; set; } = Constants.NOT_AVAILABLE;
+        public string Name { get; set; } = Constants.NOT_AVAILABLE;
 
         [Required]
         public decimal Price { get; set; }
 
         [Required]
         public DateTime TimeStamp { get; set; }
-    }
-}
+    } // class Quote
+} // namespace

@@ -7,7 +7,7 @@ namespace ExchangeMocker.Models
     {
         public string Name { get; init; }
         public decimal Price { get; init; }
-        public long Timestamp { get; init; } = DateTime.Now.Ticks;
+        public DateTime Timestamp { get; init; } = DateTime.Now.ToUniversalTime();
         public Quote(string name)
         {
             const double MINVALUE = 75000;

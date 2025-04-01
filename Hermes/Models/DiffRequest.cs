@@ -4,6 +4,6 @@
     {
         public string? QuoteA { get; set; }
         public string? QuoteB { get; set; }
-        public DateTime TimeStamp { get; set; }
+        public DateTime TargetTime { get; set; }
     } // DiffRequest
 } // namespace

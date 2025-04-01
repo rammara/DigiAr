@@ -16,7 +16,7 @@ namespace Mnemosyne.Data
             {
                 entity.ToTable("quotes");
 
-                entity.Property(e => e.QuoteName)
+                entity.Property(e => e.Name)
                     .HasColumnType("varchar(50)")
                     .IsRequired();
 

@@ -11,8 +11,8 @@ namespace Hermes.Controllers
         private readonly IConfiguration _config;
         private readonly string? _MnemosyneApiKey;
 
-        const string DefaultExchangeUrl = "http://exchangemocker";
-        const string DefaultStorageUrl = "http://mnemosyne";
+        const string DefaultExchangeUrl = "http://exchangemocker:8080";
+        const string DefaultStorageUrl = "http://mnemosyne:8080";
 
         public HomeController(Serilog.ILogger logger, IConfiguration configuration)
         {
@@ -52,9 +52,7 @@ namespace Hermes.Controllers
                 return StatusCode(StatusCodes.Status503ServiceUnavailable);
             }
 
-            var valueToBeSent = JsonContent.Create(receivedData, typeof(Quote));
-
-            var postResponse = await httpClient.PostAsJsonAsync($"{storage}/api/store", valueToBeSent);
+            var postResponse = await httpClient.PostAsJsonAsync($"{storage}/api/store", receivedData);
             if (postResponse.IsSuccessStatusCode)
             {
                 _logger.Debug("Data has been sent to Mnemosyne");
@@ -65,7 +63,7 @@ namespace Hermes.Controllers
         } // StoreQuote
 
         [HttpPost]
-        public async Task<IActionResult> GetDifference(string nameA, string nameB, DateTime timestamp)
+        public async Task<IActionResult> GetDifference(string quotea, string quoteb, string time)
         {
             var httpClient = new HttpClient();
 
@@ -75,21 +73,32 @@ namespace Hermes.Controllers
                 return StatusCode(StatusCodes.Status503ServiceUnavailable);
             }
 
+            if (!TimeSpan.TryParse(time, out TimeSpan timeOfDay))
+            {
+                return BadRequest();
+            }
+
+            DateTime currentDate = DateTime.Now.ToUniversalTime().Date;
+            DateTime requestedDateTime = currentDate.Add(timeOfDay);
+
+
             httpClient.DefaultRequestHeaders.Add("X-Api-Key", _MnemosyneApiKey);
 
-            var diffRq = new DiffRequest()
+            var requestDifferenceData = new DiffRequest()
             {
-                QuoteA = nameA,
-                QuoteB = nameB,
-                TimeStamp = timestamp
+                QuoteA = quotea,
+                QuoteB = quoteb,
+                TargetTime = requestedDateTime
             };
 
-            var valueToBeSent = JsonContent.Create(diffRq, typeof(DiffRequest));
-
-            var postResponse = await httpClient.PostAsJsonAsync("http://mnemosyne/api/store", valueToBeSent);
+            var postResponse = await httpClient.PostAsJsonAsync($"{DefaultStorageUrl}/api/getdiff", requestDifferenceData);
 
             if (postResponse.IsSuccessStatusCode)
             {
+                if (HttpStatusCode.NoContent == postResponse.StatusCode)
+                {
+                    return Json(new { result = "No quotes were found at the given time or before it" });
+                }
                 try
                 {
                     var received = await postResponse.Content.ReadFromJsonAsync<DiffResponse>();
@@ -103,10 +112,7 @@ namespace Hermes.Controllers
                     return StatusCode(StatusCodes.Status500InternalServerError);
                 }
             }
-            else if (HttpStatusCode.NoContent == postResponse.StatusCode)
-            {
-                return Json(new { result = "No quotes were found at the given time or before it" });
-            }
+          
             else if (HttpStatusCode.InternalServerError == postResponse.StatusCode)
             {
                 return Json(new { result = "Quote service reported an error" });

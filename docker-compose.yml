@@ -5,7 +5,7 @@ services:
         context: .
         dockerfile: ExchangeMocker/Dockerfile
     ports:
-        - "8080:80"
+        - "8080:8080"
 
   hermes:
     image: ${DOCKER_REGISTRY-}hermes
@@ -13,7 +13,7 @@ services:
         context: .
         dockerfile: Hermes/Dockerfile
     ports:
-        - "7000:80" 
+        - "7000:8080" 
 
   mnemosyne:
     image: ${DOCKER_REGISTRY-}mnemosyne
@@ -21,7 +21,7 @@ services:
       context: .
       dockerfile: Mnemosyne/Dockerfile
     ports:
-      - "7777:80"
+      - "7777:8080"
     depends_on:
       - db
 

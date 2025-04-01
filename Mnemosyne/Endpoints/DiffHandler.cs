@@ -13,12 +13,12 @@ namespace Mnemosyne.Endpoints
             try
             {
                 var quoteA = await _db.Quotes
-                    .Where(q => q.QuoteName == diffrq.QuoteA)
+                    .Where(q => q.Name == diffrq.QuoteA)
                     .OrderByDescending(q => q.TimeStamp)
                     .FirstOrDefaultAsync(q => q.TimeStamp <= diffrq.TargetTime);
 
                 var quoteB = await _db.Quotes
-                    .Where(q => q.QuoteName == diffrq.QuoteA)
+                    .Where(q => q.Name == diffrq.QuoteA)
                     .OrderByDescending(q => q.TimeStamp)
                     .FirstOrDefaultAsync(q => q.TimeStamp <= diffrq.TargetTime);
 

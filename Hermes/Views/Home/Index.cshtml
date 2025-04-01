@@ -14,7 +14,7 @@
         <h4>Получение котировок:</h4>
         <form class="form" id="formStoreQuote" method="post">
             <label for="inputExchange">Биржа:</label>
-            <input type="text" class="form-control form-control-sm" id="inputExchange" name="exhcange" value="@TempData["ExchangeUrl"]" />
+            <input type="text" class="form-control form-control-sm" id="inputExchange" name="exchange" value="@TempData["ExchangeUrl"]" />
             <label for="inputStorage">Хранилище:</label>
             <input type="text" class="form-control form-control-sm" id="inputStorage" name="storage" value="@TempData["StorageUrl"]" />
 
@@ -30,7 +30,42 @@
     </div>
 </div>
 
+<hr />
+
+<div class="row mt-4">
+    <div class="col-5 offset-1">
+        <h4>Получение разницы</h4>
+        <form class="form" id="formGetDiff" method="post">
+            <label for="inputA">Котировка А:</label>
+            <input type="text" class="form-control form-control-sm" id="inputA" name="quotea"/>
+            <label for="inputB">Котировка Б:</label>
+            <input type="text" class="form-control form-control-sm" id="inputB" name="quoteb" />
+            <label for="time">Время:</label>
+            <div class="input-group mb-3">
+                <input type="time" class="form-control form-control-sm" step="1" id="timeInput" name="time" required />
+                <button class="btn btn-outline-secondary" type="button" onclick="setCurrentTime()">Текущее время</button>
+            </div>
+
+            <button class="btn btn-primary mt-1" type="submit" id="btnDiff">Получить</button>
+        </form>
+    </div>
+    <div class="col-5 offset-1">
+        <h4>Результат</h4>
+        <div id="diffresult"></div>
+    </div>
+</div>
+
+
 <script type="text/javascript">
+    function setCurrentTime()
+    {
+        const now = new Date();
+        const hours = now.getHours().toString().padStart(2, '0');
+        const minutes = now.getMinutes().toString().padStart(2, '0'); 
+        const timeValue = `${hours}:${minutes}`; 
+        document.getElementById('timeInput').value = timeValue; 
+    }
+
     document.getElementById('formStoreQuote').addEventListener('submit', function (event) {
         event.preventDefault(); 
 
@@ -68,6 +103,54 @@
                 console.error('There has been a problem with your fetch operation:', error);
                 resultDiv.innerHTML = '<strong>Ошибка при получении котировки.</strong>';
                 resultDiv.style.display = 'block'; 
+            });
+    });
+
+    document.getElementById('formGetDiff').addEventListener('submit', function (event)
+    {
+        event.preventDefault(); 
+
+        const resultElement = document.getElementById('diffresult');
+
+        fetch('/Home/GetDifference', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            body: new URLSearchParams(new FormData(this))
+        })
+            .then(response =>
+            {
+                if (!response.ok)
+                {
+                    switch (response.status)
+                    {
+                        case 400:
+                            throw new Error('Ошибка в запросе.');
+                        case 500:
+                            throw new Error('Ошибка на сервере.');
+                        case 503:
+                            throw new Error('Сервис временно недоступен.');
+                        default:
+                            throw new Error('Неизвестная ошибка.');
+                    }
+                }
+                return response.json();
+            })
+            .then(data =>
+            {
+                if (data.result)
+                {
+                    resultElement.innerHTML = data.result;
+                } else
+                {
+                    resultElement.innerHTML = 'Не удалось получить разницу.';
+                }
+            })
+            .catch(error =>
+            { 
+                console.error('Fetch Error:', error);
+                resultElement.innerHTML = error.message;
             });
     });
 

@@ -7,13 +7,15 @@ namespace Mnemosyne.Endpoints
     { 
         public override async Task<IResult> HandleAsync(object requestParameter)
         {
-            if (requestParameter is not IEnumerable<Quote> quotes) return Results.BadRequest();
+            if (requestParameter is not Quote quote) return Results.BadRequest();
             try
             {
-                foreach (var quote in quotes)
+                if (quote.TimeStamp.Kind != DateTimeKind.Utc)
                 {
-                    _db.Quotes.Add(quote);
-                } // foreach
+                    quote.TimeStamp = quote.TimeStamp.ToUniversalTime();
+                }
+
+                _db.Quotes.Add(quote);
                 await _db.SaveChangesAsync();
                 return Results.Ok();
             } // try

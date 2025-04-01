@@ -34,12 +34,13 @@ namespace Mnemosyne
             var app = builder.Build();
 
             var dbApis = app.MapGroup("/api");
-            dbApis.MapPost("/store", async (List<Quote> quotes, StoreHandler handler) =>
+            dbApis.MapPost("/store", async (Quote quote, StoreHandler handler) =>
             {
-                return await handler.HandleAsync(quotes);
+                return await handler.HandleAsync(quote);
             });
 
-            dbApis.MapPost("/getdiff", async (DiffRequest diffRequest, DiffHandler handler) => {
+            dbApis.MapPost("/getdiff", async (DiffRequest diffRequest, DiffHandler handler) =>
+            {
                 return await handler.HandleAsync(diffRequest);
             });
 
@@ -48,8 +49,14 @@ namespace Mnemosyne
                 var response = value ?? "no parameter given";
                 return Results.Ok(response);
             });
-            
+
+            using (var scope = app.Services.CreateScope())
+            {
+                var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+                dbContext.Database.Migrate();
+            }
+
             app.Run();
-        }
-    } // Main
+        } // void Main
+    } // class Program
 } // namespace
