@@ -24,11 +24,11 @@ namespace Mnemosyne.Endpoints
 
                 if (quoteA is null || quoteB is null)
                 {
-                    return Results.NotFound("No prices found for one of the futures at the specified time.");
+                    return Results.NoContent();
                 }
 
                 var response = new DiffResponse(quoteA, quoteB);
-                return Results.Ok(response);
+                return Results.Json(response);
             } // try
             catch (Exception ex)
             {

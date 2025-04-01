@@ -12,6 +12,9 @@ namespace Mnemosyne
     {
         public static void Main(string[] args)
         {
+
+            Console.WriteLine("Mnemosyne starting up");
+
             var builder = WebApplication.CreateSlimBuilder(args);
 
             builder.Services.AddSerilog(config => config
@@ -45,6 +48,7 @@ namespace Mnemosyne
                 var response = value ?? "no parameter given";
                 return Results.Ok(response);
             });
+            
             app.Run();
         }
     } // Main

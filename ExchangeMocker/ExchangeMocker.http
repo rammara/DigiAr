@@ -1,0 +1,4 @@
+@ExchangeMocker_HostAddress = http://localhost:5243
+
+GET {{ExchangeMocker_HostAddress}}/api/tickets?name=BTCUSDT
+Accept: application/json
