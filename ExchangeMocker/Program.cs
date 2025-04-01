@@ -12,8 +12,8 @@ namespace ExchangeMocker
 
             var app = builder.Build();
 
-            var todosApi = app.MapGroup("/api");
-            todosApi.MapGet("/tickets", (string name) =>
+            var apiGroup = app.MapGroup("/api");
+            apiGroup.MapGet("/tickets", (string name) =>
             {
                 return Results.Json(new Quote(name));
             });
